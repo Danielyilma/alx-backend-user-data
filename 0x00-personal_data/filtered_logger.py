@@ -4,6 +4,8 @@ import re
 import logging
 
 
+PII_FIELDS = ("name","email","phone","ssn","password")
+
 def filter_datum(fields, redaction, message, separator):
     for field in fields:
         match = re.match(rf".*{field}=([^{separator}]+){separator}.*", message)
@@ -28,3 +30,15 @@ class RedactingFormatter(logging.Formatter):
         '''formatting logs'''
         record.msg = filter_datum(self.fields, self.REDACTION, record.getMessage(), self.SEPARATOR)
         return logging.Formatter.format(self, record)
+
+
+def get_logger() -> logging.Logger:
+    '''
+        returns Logger object with userdata name
+        info level with RedactingFormatter formatter
+    '''
+    logger = logging.Logger(name="user_data", level=logging.INFO)
+    logger.setStream()
+    logger.propagate = False
+    logger.setFormatter(RedactingFormatter(PII_FIELDS))
+    return logger
