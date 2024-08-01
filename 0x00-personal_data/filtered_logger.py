@@ -1,4 +1,4 @@
-#!/use/bin/env python3
+#!/usr/bin/env python3
 '''logging by hiding secure data'''
 import re
 import logging
