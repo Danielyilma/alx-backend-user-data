@@ -8,6 +8,7 @@ def hash_password(password: str) -> any:
     salt = bcrypt.gensalt(rounds=12)
     return bcrypt.hashpw(password.encode(), salt)
 
+
 def is_valid(hashed_password: bytes, password: str) -> any:
     '''validate if a password match its hash'''
     return bcrypt.checkpw(password.encode(), hashed_password)
