@@ -15,8 +15,7 @@ def filter_datum(
         message: str, separator: str) -> str:
     '''filter data'''
     for field in fields:
-        match = re.match(rf".*{field}=([^{separator}]+){separator}.*", message)
-        message = re.sub(f"{match.group(1)}", redaction, message)
+        message = re.sub(f"{field}=[^;]*", rf"{field}={redaction}", message)
     return message
 
 
@@ -29,7 +28,7 @@ class RedactingFormatter(logging.Formatter):
     SEPARATOR = ";"
 
     def __init__(self, fields):
-        ''''''
+        '''initializing the formatter'''
         self.fields = fields
         super(RedactingFormatter, self).__init__(self.FORMAT)
 
