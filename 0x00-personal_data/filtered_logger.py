@@ -1,74 +1,86 @@
 #!/usr/bin/env python3
-'''Filter logs with regex'''
+'''logging by hiding secure data'''
 import re
-from typing import List
 import logging
 import os
-import mysql.connector
+from mysql.connector.connection import MySQLConnection
 
 
-PII_FIELDS = ("name", "email", "phone", "ssn", "password")
+PII_FIELDS = ("name","email","phone","ssn","password")
+
+def filter_datum(fields, redaction, message, separator):
+    '''filter data'''
+    for field in fields:
+        match = re.match(rf".*{field}=([^{separator}]+){separator}.*", message)
+        message = re.sub(f"{match.group(1)}", redaction, message)
+    return message
 
 
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class
-    """
+        """
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
     SEPARATOR = ";"
 
-    def __init__(self, fields: List[str]):
-        super(RedactingFormatter, self).__init__(self.FORMAT)
+    def __init__(self, fields):
+        ''''''
         self.fields = fields
+        super(RedactingFormatter, self).__init__(self.FORMAT)
 
     def format(self, record: logging.LogRecord) -> str:
-        '''Filter and format values'''
-        return filter_datum(self.fields, self.REDACTION,
-                            super().format(record), self.SEPARATOR)
-
-
-def filter_datum(fields: List[str], redaction: str,
-                 message: str, separator: str) -> str:
-    '''Filter definition using Regex'''
-    for f in fields:
-        message = re.sub(f + "=.*?" + separator,
-                         f + "=" + redaction + separator, message)
-    return message
+        '''formatting logs'''
+        record.msg = filter_datum(self.fields, self.REDACTION, record.getMessage(), self.SEPARATOR)
+        return logging.Formatter.format(self, record)
 
 
 def get_logger() -> logging.Logger:
-    '''Definition that takes no arguments
-    and returns a logging.Logger object.'''
-    logger = logging.getLogger("user_data")
-    logger.setLevel(logging.INFO)
+    '''
+        returns Logger object with userdata name
+        info level with RedactingFormatter formatter
+    '''
+    logger = logging.getLogger(name="user_data")
+    logger.selevel=logging.INFO
     logger.propagate = False
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(RedactingFormatter(PII_FIELDS))
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    handler = logging.ha
     return logger
 
 
-def get_db() -> mysql.connector.connection.MySQLConnection:
-    '''Obtain te auth data from a env var'''
-    connector = mysql.connector.connect(
-        user=os.environ.get("PERSONAL_DATA_DB_USERNAME", "root"),
-        password=os.environ.get("PERSONAL_DATA_DB_PASSWORD", ""),
-        host=os.environ.get("PERSONAL_DATA_DB_HOST", "localhost"),
-        database=os.environ.get("PERSONAL_DATA_DB_NAME"))
-    return connector
+def get_db():
+    '''connects to database and return a connector object'''
+    user = os.getenv("PERSONAL_DATA_DB_USERNAME") or "root"
+    passwd = os.getenv("PERSONAL_DATA_DB_PASSWORD") or ""
+    host = os.getenv("PERSONAL_DATA_DB_HOST") or "localhost"
+    db = os.getenv("PERSONAL_DATA_DB_NAME")
+
+    try:
+        conn = MySQLConnection(
+            user=user, passwd=passwd,
+            host=host, db=db
+        )
+    except Exception as e:
+        print("Error connecting to db", e)
+        exit(1)
+
+    return conn
 
 
-if __name__ == '__main__':
-    connection = get_db()
-    cursor = connection.cursor(dictionary=True)
-    query = ("SELECT * FROM users")
-    cursor.execute(query)
+def main():
+    '''excution starts here'''
+    conn = get_db()
+
+    cursor = conn.cursor()
+    sql = "SELECT * FROM users"
+    cursor.execute(sql)
+    logger = get_logger()
     for row in cursor:
-        string = ""
-        for key in row:
-            string += "{}={}; ".format(key, row[key])
-        print(string)
+        record = logging.LogRecord(exc_info=row)
+        print(logger.format())
+        print(row)
+    
     cursor.close()
-    connection.close()
+    conn.close()
+
+if __name__ == "__main__":
+    main()
