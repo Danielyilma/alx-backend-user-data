@@ -3,12 +3,16 @@
 import re
 import logging
 import os
+from typing import List
 from mysql.connector.connection import MySQLConnection
 
 
-PII_FIELDS = ("name","email","phone","ssn","password")
+PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
-def filter_datum(fields, redaction, message, separator):
+
+def filter_datum(
+        fields: List[str], redaction: str,
+        message: str, separator: str) -> str:
     '''filter data'''
     for field in fields:
         match = re.match(rf".*{field}=([^{separator}]+){separator}.*", message)
@@ -18,7 +22,7 @@ def filter_datum(fields, redaction, message, separator):
 
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class
-        """
+    """
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
@@ -31,7 +35,10 @@ class RedactingFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         '''formatting logs'''
-        record.msg = filter_datum(self.fields, self.REDACTION, record.getMessage(), self.SEPARATOR)
+        record.msg = filter_datum(
+            self.fields, self.REDACTION,
+            record.getMessage(), self.SEPARATOR
+        )
         return logging.Formatter.format(self, record)
 
 
@@ -41,7 +48,7 @@ def get_logger() -> logging.Logger:
         info level with RedactingFormatter formatter
     '''
     logger = logging.getLogger(name="user_data")
-    logger.selevel=logging.INFO
+    logger.selevel = logging.INFO
     logger.propagate = False
     handler = logging.ha
     return logger
@@ -78,9 +85,10 @@ def main():
         record = logging.LogRecord(exc_info=row)
         print(logger.format())
         print(row)
-    
+
     cursor.close()
     conn.close()
+
 
 if __name__ == "__main__":
     main()
