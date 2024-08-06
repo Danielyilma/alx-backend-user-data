@@ -65,7 +65,7 @@ class BasicAuth(Auth):
 
         users = User.search({'email': user_email})
 
-        if not users:
+        if users == []:
             return None
 
         user = list(filter(lambda x: x.is_valid_password(user_pwd), users))
