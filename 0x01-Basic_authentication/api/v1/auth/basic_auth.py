@@ -49,7 +49,7 @@ class BasicAuth(Auth):
 
         if ':' not in decoded_base64_authorization_header:
             return None, None
-        
+
         idx = decoded_base64_authorization_header.find(':')
         user_credential = decoded_base64_authorization_header
 
