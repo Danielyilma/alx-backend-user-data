@@ -27,9 +27,18 @@ def stats() -> str:
 
 
 @app_views.route('/unauthorized', strict_slashes=False)
-def unauthorized() -> str:
+def unauthorized_access() -> str:
     ''' GET /api/v1/unauthorized
     Return:
       - error message
     '''
     abort(401)
+  
+
+@app_views.route('/forbidden', strict_slashes=False)
+def forbidden_access() -> str:
+    ''' GET /api/v1/forbidden
+    Return:
+      - error message
+    '''
+    abort(403)
