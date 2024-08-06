@@ -20,7 +20,9 @@ if os.getenv('AUTH_TYPE') == "auth":
 
 
 @app.before_request
-def auth_user():
+def auth_user() -> None:
+    '''checking if routes need authentication
+    and user is authenticated'''
     if not auth:
         return
 
