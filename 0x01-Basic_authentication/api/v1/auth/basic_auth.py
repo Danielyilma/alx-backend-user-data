@@ -43,10 +43,10 @@ class BasicAuth(Auth):
 
         if not decoded_base64_authorization_header or \
                 type(decoded_base64_authorization_header) is not str:
-            return None
+            return None, None
 
         if ':' not in decoded_base64_authorization_header:
-            return None
+            return None, None
 
         user_credential = decoded_base64_authorization_header.split(':')
 
