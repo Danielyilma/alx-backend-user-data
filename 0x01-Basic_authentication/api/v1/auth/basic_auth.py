@@ -68,7 +68,7 @@ class BasicAuth(Auth):
         except Exception as e:
             return None
 
-        if users:
+        if not users:
             return None
 
         user = list(filter(lambda x: x.is_valid_password(user_pwd), users))
