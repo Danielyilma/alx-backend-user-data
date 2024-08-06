@@ -10,9 +10,17 @@ class Auth:
     '''
 
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        '''Auth class
-        provides different feature for authentication'''
+        '''checks if path does not exist in exluded_paths'''
+        if not (path and excluded_paths):
+            return True
+        
+        if path[-1] != "/":
+            path += "/"
+
+        if path not in excluded_paths:
+            return True
         return False
+
 
     def authorization_header(self, request=None) -> str:
         '''Auth class
