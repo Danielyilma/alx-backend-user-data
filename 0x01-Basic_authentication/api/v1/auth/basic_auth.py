@@ -32,10 +32,11 @@ class BasicAuth(Auth):
 
         try:
             decode = base64.b64decode(base64_authorization_header)
+            decode = decode.decode("utf-8")
         except Exception as e:
             return None
 
-        return decode.decode('utf-8')
+        return decode
 
     def extract_user_credentials(
             self, decoded_base64_authorization_header: str
@@ -71,15 +72,19 @@ class BasicAuth(Auth):
         if not user:
             return None
         return user[0]
-    
+
     def current_user(self, request=None) -> TypeVar('User'):
         '''return currently authenticated user'''
         if not request:
             return None
-        
+
         auth_header = self.authorization_header(request)
-        base64_auth_header = self.extract_base64_authorization_header(auth_header)
-        decoded_auth_header = self.decode_base64_authorization_header(base64_auth_header)
+        base64_auth_header = self.extract_base64_authorization_header(
+            auth_header
+        )
+        decoded_auth_header = self.decode_base64_authorization_header(
+            base64_auth_header
+        )
         user_credential = self.extract_user_credentials(decoded_auth_header)
 
         return self.user_object_from_credentials(
