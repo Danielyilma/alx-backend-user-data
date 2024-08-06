@@ -70,7 +70,7 @@ class BasicAuth(Auth):
 
         user = list(filter(lambda x: x.is_valid_password(user_pwd), users))
 
-        if not user:
+        if user == []:
             return None
         return user[0]
 
