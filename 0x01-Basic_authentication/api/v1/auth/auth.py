@@ -13,7 +13,7 @@ class Auth:
         '''checks if path does not exist in exluded_paths'''
         if not (path and excluded_paths):
             return True
-        
+
         if path[-1] != "/":
             path += "/"
 
@@ -21,11 +21,13 @@ class Auth:
             return True
         return False
 
-
     def authorization_header(self, request=None) -> str:
-        '''Auth class
-        provides different feature for authentication'''
-        return None
+        '''return authorization header'''
+        if not request:
+            return None
+        if not request.headers.get("Authorization", None):
+            return None
+        return request.headers.get("Authorization")
 
     def current_user(self, request=None) -> TypeVar('User'):
         '''Auth class
