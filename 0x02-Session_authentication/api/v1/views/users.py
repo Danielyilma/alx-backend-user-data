@@ -126,7 +126,7 @@ def update_user(user_id: str = None) -> str:
 
 
 @app_views.route('/users/me', methods=['GET'], strict_slashes=False)
-def authenticated_user():
+def authenticated_user() -> str:
     if not request.current_user:
         abort(403)
     return jsonify(request.current_user.to_json()), 200
