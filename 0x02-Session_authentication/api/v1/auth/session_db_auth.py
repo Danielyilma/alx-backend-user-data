@@ -1,11 +1,11 @@
-#!/user/bin/env python3
+#!/usr/bin/env python3
 '''permanent storage for session'''
 from api.v1.auth.session_exp_auth import SessionExpAuth
 from models.user_session import UserSession
 
 
 class SessionDBAuth(SessionExpAuth):
-    '''session storsge'''
+    '''session storage'''
     def create_session(self, user_id=None):
         '''create a session for a user'''
         session_id = super().create_session(user_id)
@@ -38,7 +38,7 @@ class SessionDBAuth(SessionExpAuth):
 
         users = UserSession.search({"session_id": session_id})
         if not users:
-            return None
+            return False
 
         users[0].remove()
 
