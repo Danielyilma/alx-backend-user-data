@@ -38,13 +38,14 @@ def auth_user() -> None:
 
     if not auth.require_auth(request.path, [
         '/api/v1/status/', '/api/v1/unauthorized/',
-        '/api/v1/forbidden/'
+        '/api/v1/forbidden/', '/api/v1/auth_session/login/'
     ]):
         return None
 
     auth_header = auth.authorization_header(request)
+    sess_cookie = auth.session_cookie(request)
 
-    if not auth_header:
+    if not auth_header and not sess_cookie:
         abort(401)
 
     user = auth.current_user(request)
