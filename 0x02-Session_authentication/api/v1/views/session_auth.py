@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''session authentication routes'''
 from api.v1.views import app_views
-from flask import jsonify, request, session
+from flask import jsonify, request, abort
 from models.user import User
 import os
 
@@ -35,3 +35,11 @@ def login() -> str:
     res.set_cookie(session_name, session_id)
 
     return res
+
+@app_views.route('/auth_session/logout', methods=['DELETE'], strict_slashes=False)
+def logout() -> str:
+    from api.v1.app import auth
+    if not auth.destroy_session(request):
+        abort(404)
+
+    return jsonify({}), 200
