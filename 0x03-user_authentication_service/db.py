@@ -40,24 +40,3 @@ class DB:
         self._session.commit()
 
         return user
-
-    def find_user_by(self, **kwargs: dict) -> User:
-        '''find user by attribute'''
-
-        def check_attribute(attr: str):
-            ''' checks the attribute is valid
-                if valid
-                    return user found by that attribute
-            '''
-            if attr not in User.__dict__:
-                raise InvalidRequestError("Wrong attribute")
-
-            return self._session.query(User).filter(
-                getattr(User, attr) == kwargs[attr]
-            ).first()
-
-        result = list(map(check_attribute, kwargs))[0]
-
-        if not result:
-            raise NoResultFound("no result")
-        return result
