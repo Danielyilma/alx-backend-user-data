@@ -9,13 +9,14 @@ auth = Auth()
 
 
 @app.route('/', methods=['GET'], strict_slashes=False)
-def index():
+def index() -> str:
     '''welcome route'''
     return jsonify({"message": "Bienvenue"}), 200
 
 
 @app.route('/users', methods=['POST'], strict_slashes=False)
-def sign_up():
+def sign_up() -> str:
+    '''register user'''
     email = request.form.get('email')
     passwd = request.form.get('password')
 
@@ -31,7 +32,7 @@ def sign_up():
 
 
 @app.route('/sessions', methods=['POST'], strict_slashes=False)
-def login():
+def login() -> str:
     '''validate user credentials and
         create a session add it to cookie with session_id key
     '''
@@ -52,7 +53,8 @@ def login():
 
 
 @app.route('/sessions', methods=['DELETE'], strict_slashes=False)
-def logout():
+def logout() -> str:
+    '''destroy user session'''
     session_id = request.cookies.get("session_id")
 
     user = auth.get_user_from_session_id(session_id)

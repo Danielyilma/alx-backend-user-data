@@ -1,1 +1,1 @@
-### user authenticatio using flask framework and sqlalchemy orm
+### user authentication using flask framework and sqlalchemy orm

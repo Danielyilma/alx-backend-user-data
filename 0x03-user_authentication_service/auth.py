@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 '''auth module'''
+from sqlalchemy.exc import InvalidRequestError, NoResultFound
+from user import User
 from db import DB
 import bcrypt
 import uuid
-from user import User
-from sqlalchemy.exc import InvalidRequestError, NoResultFound
 
 
 def _hash_password(password: str) -> bytes:
