@@ -8,6 +8,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import InvalidRequestError, NoResultFound
 
 from user import Base, User
+from typing import Any, Dict
 
 
 class DB:
@@ -44,7 +45,7 @@ class DB:
 
         return user
 
-    def find_user_by(self, **kwargs: dict) -> User:
+    def find_user_by(self, **kwargs: Dict[str, Any]) -> User:
         '''find user by attribute'''
 
         def check_attribute(attr: str):
@@ -59,8 +60,23 @@ class DB:
                 getattr(User, attr) == kwargs[attr]
             ).first()
 
-        result = list(map(check_attribute, kwargs))[0]
+        user = list(map(check_attribute, kwargs))[0]
 
-        if not result:
+        if not user:
             raise NoResultFound("no result")
-        return result
+        return user
+
+    def update_user(self, user_id: int, **kwargs: Dict[str, Any]) -> None:
+        '''update user attributes from kwargs passed for user by id
+            if the wrong attribute raises ValueError
+        '''
+        try:
+            user = self.find_user_by(id=user_id)
+        except Exception:
+            return None
+
+        for key in kwargs:
+            if key not in user.__dict__:
+                raise ValueError("attribute not found")
+            setattr(user, key, kwargs[key])
+        self._session.commit()
