@@ -49,14 +49,16 @@ class DB:
 
         def check_attribute(attr: str):
             ''' checks the attribute is valid
-                if valid 
+                if valid
                     return user found by that attribute
             '''
             if attr not in User.__dict__:
                 raise InvalidRequestError("Wrong attribute")
 
-            return self._session.query(User).filter(getattr(User, attr) == kwargs[attr]).first()
-        
+            return self._session.query(User).filter(
+                getattr(User, attr) == kwargs[attr]
+            ).first()
+
         result = list(map(check_attribute, kwargs))[0]
 
         if not result:
