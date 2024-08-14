@@ -67,8 +67,8 @@ class DB:
         return user
 
     def update_user(self, user_id: int, **kwargs: Dict[str, Any]) -> None:
-        '''update user attributes from kwargs passed for user by id
-            if the wrong attribute raises ValueError
+        '''update user attributes from kwargs by user_id
+            if the attribute are wrong  ValueError will be raises
         '''
         try:
             user = self.find_user_by(id=user_id)
