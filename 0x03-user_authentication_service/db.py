@@ -36,13 +36,11 @@ class DB:
         user = User()
         user.email = email
         user.hashed_password = hashed_password
-        
+
         try:
             self._session.add(user)
             self._session.commit()
-        except:
+        except Exception:
             self._session.rollback()
-        finally:
-            self._session.close()
 
         return user
