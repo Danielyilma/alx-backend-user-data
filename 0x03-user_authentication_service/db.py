@@ -4,7 +4,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import InvalidRequestError, NoResultFound
 
 from user import Base, User
@@ -24,7 +23,7 @@ class DB:
         self.__session = None
 
     @property
-    def _session(self) -> Session:
+    def _session(self):
         """Memoized session object
         """
         if self.__session is None:
@@ -33,7 +32,9 @@ class DB:
         return self.__session
 
     def add_user(self, email: str, hashed_password: str) -> User:
-        '''adding user to the database and return User object'''
+        '''adding user to the database and
+            return User object
+        '''
         user = User(email=email, hashed_password=hashed_password)
 
         try:
@@ -46,7 +47,8 @@ class DB:
         return user
 
     def find_user_by(self, **kwargs: Dict[str, Any]) -> User:
-        '''find user by attribute'''
+        '''find user by attribute
+        '''
 
         def check_attribute(attr: str):
             ''' checks the attribute is valid
