@@ -5,7 +5,7 @@ from auth import Auth
 
 
 app = Flask(__name__)
-auth = Auth()
+Auth = Auth()
 
 
 @app.route('/', methods=['GET'], strict_slashes=False)
@@ -24,11 +24,11 @@ def users() -> str:
         return jsonify({"error": "email and password is required"}), 400
 
     try:
-        auth.register_user(email, passwd)
+        Auth.register_user(email, passwd)
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
 
-    return jsonify({"email": email, "message": "user created"}), 201
+    return jsonify({"email": email, "message": "user created"}), 200
 
 
 @app.route('/sessions', methods=['POST'], strict_slashes=False)
@@ -42,10 +42,10 @@ def login() -> str:
     if not (email and passwd):
         return jsonify({"error": "email and password is required"}), 400
 
-    if not auth.valid_login(email, passwd):
+    if not Auth.valid_login(email, passwd):
         abort(401)
 
-    session_id = auth.create_session(email)
+    session_id = Auth.create_session(email)
     response = jsonify({"email": "<user email>", "message": "logged in"})
     response.set_cookie("session_id", session_id)
 
@@ -57,11 +57,11 @@ def logout() -> str:
     '''destroy user session'''
     session_id = request.cookies.get("session_id")
 
-    user = auth.get_user_from_session_id(session_id)
+    user = Auth.get_user_from_session_id(session_id)
     if not user:
         return abort(403)
 
-    auth.destroy_session(user.id)
+    Auth.destroy_session(user.id)
 
     return redirect('/')
 
