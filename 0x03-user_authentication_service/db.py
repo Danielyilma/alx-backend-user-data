@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """DB module
-    handle database interaction 
+    handle database interaction
 """
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
