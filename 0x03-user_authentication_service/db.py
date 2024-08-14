@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
-"""DB module
-    handle database interaction
+"""DB Module
 """
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import InvalidRequestError, NoResultFound
-
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import InvalidRequestError
 from user import Base, User
-from typing import Any, Dict
 
 
 class DB:
     """DB class
     """
 
-    def __init__(self) -> None:
-        """Initialize a new DB instance
+    def __init__(self):
+        """Initializes a new DB instance
         """
         self._engine = create_engine("sqlite:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
@@ -25,7 +24,8 @@ class DB:
 
     @property
     def _session(self):
-        """Memoized session object
+        """Private memoized session method (object)
+        Never used outside DB class
         """
         if self.__session is None:
             DBSession = sessionmaker(bind=self._engine)
@@ -33,53 +33,41 @@ class DB:
         return self.__session
 
     def add_user(self, email: str, hashed_password: str) -> User:
-        '''adding user to the database and
-            return User object
-        '''
+        """Add new user to database
+        Returns a User object
+        """
         user = User(email=email, hashed_password=hashed_password)
-
-        try:
-            self._session.add(user)
-            self._session.commit()
-        except Exception:
-            self._session.rollback()
-            user = None
-
+        self._session.add(user)
+        self._session.commit()
         return user
 
-    def find_user_by(self, **kwargs: Dict[str, Any]) -> User:
-        '''find user by attribute
-        '''
+    def find_user_by(self, **kwargs) -> User:
+        """Returns first rrow found in users table
+        as filtered by methods input arguments
+        """
+        user_keys = ['id', 'email', 'hashed_password', 'session_id',
+                     'reset_token']
+        for key in kwargs.keys():
+            if key not in user_keys:
+                raise InvalidRequestError
+        result = self._session.query(User).filter_by(**kwargs).first()
+        if result is None:
+            raise NoResultFound
+        return result
 
-        def check_attribute(attr: str):
-            ''' checks the attribute is valid
-                if valid
-                    return user found by that attribute
-            '''
-            if attr not in User.__dict__:
-                raise InvalidRequestError("Wrong attribute")
-
-            return self._session.query(User).filter(
-                getattr(User, attr) == kwargs[attr]
-            ).first()
-
-        user = list(map(check_attribute, kwargs))[0]
-
-        if not user:
-            raise NoResultFound("no result")
-        return user
-
-    def update_user(self, user_id: int, **kwargs: Dict[str, Any]) -> None:
-        '''update user attributes from kwargs by user_id
-            if the attribute are wrong  ValueError will be raises
-        '''
-        try:
-            user = self.find_user_by(id=user_id)
-        except Exception:
-            return None
-
-        for key in kwargs:
-            if key not in user.__dict__:
-                raise ValueError("attribute not found")
-            setattr(user, key, kwargs[key])
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """Use find_user_by to locate the user to update
+        Update user's attribute as passed in methods argument
+        Commit changes to database
+        Raises ValueError if argument does not correspond to user
+        attribute passed
+        """
+        user_to_update = self.find_user_by(id=user_id)
+        user_keys = ['id', 'email', 'hashed_password', 'session_id',
+                     'reset_token']
+        for key, value in kwargs.items():
+            if key in user_keys:
+                setattr(user_to_update, key, value)
+            else:
+                raise ValueError
         self._session.commit()
