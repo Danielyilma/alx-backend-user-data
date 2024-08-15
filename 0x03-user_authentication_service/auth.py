@@ -86,3 +86,24 @@ class Auth:
             self._db.update_user(user_id, session_id=None)
         except Exception:
             pass
+
+    def get_reset_password_token(self, email: str) -> str:
+        '''generate uuid for email passed
+            if email not registered it will raises ValueError
+        '''
+        try:
+            user = self._db.find_user_by(email=email)
+            self._db.update_user(user.id, reset_token=_generate_uuid())
+            return user.reset_token
+        except Exception:
+            raise ValueError("user does not exist")
+
+    def update_password(self, reset_token: str, password:str) -> None:
+        '''update user password if their is a user with the passed token
+            else raise ValueError'''
+        try:
+            user = self._db.find_user_by(reset_token=reset_token)
+            hash_pwd = _hash_password(password)
+            self._db.update_user(user.id, reset_token=None, password=hash_pwd)
+        except Exception:
+            raise ValueError("user does not exist")
