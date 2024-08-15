@@ -107,5 +107,4 @@ class Auth:
             self._db.update_user(user.id,
                                  reset_token=None, hashed_password=hash_pwd)
         except Exception:
-            print("ss")
             raise ValueError("user does not exist")

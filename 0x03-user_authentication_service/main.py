@@ -68,6 +68,7 @@ def profile_logged(session_id: str) -> None:
 
 
 def log_out(session_id: str) -> None:
+    '''logout route'''
     route = '/sessions'
     url = protocol + domain + port + route
     expected_response = {"message": "Bienvenue"}
