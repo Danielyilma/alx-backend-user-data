@@ -102,7 +102,7 @@ def get_reset_password_token():
 def update_password() -> str:
     '''update user password'''
     email = request.form.get('email')
-    reset_token = request.form.get('reset_password')
+    reset_token = request.form.get('reset_token')
     new_password = request.form.get('new_password')
 
     if not (email and reset_token and new_password):
